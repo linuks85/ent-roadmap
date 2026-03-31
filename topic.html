@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ЕНТ Информатика — Тема</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+      <span class="logo-dot"></span> ЕНТ Информатика
+    </a>
+    <div class="navbar-actions">
+      <div class="lang-toggle">
+        <button class="lang-btn active" data-lang="ru" onclick="setLang('ru')">Рус</button>
+        <button class="lang-btn" data-lang="kz" onclick="setLang('kz')">Қаз</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <a href="index.html" class="back-btn" id="backLabel">← Roadmap</a>
+
+    <div class="page-header" style="margin-top:24px">
+      <div class="badge" id="topicBadge">Раздел · Тема</div>
+      <h1 id="topicTitle">Загрузка...</h1>
+      <p class="subtitle" id="topicSubtitle"></p>
+    </div>
+
+    <div id="lessonContent">
+      <!-- Dynamically rendered lesson sections -->
+    </div>
+
+    <div id="quizSection" class="lesson-flow-bottom" style="border:none;margin-top:48px">
+      <!-- Quiz loads here -->
+    </div>
+  </div>
+
+  <script src="js/quiz.js"></script>
+  <script src="js/topic.js"></script>
+</body>
+</html>

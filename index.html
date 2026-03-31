@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ЕНТ Информатика — Roadmap</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Index-specific styles */
+    .header { text-align: center; margin-bottom: 48px; }
+
+    .header-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      border-radius: 100px; padding: 8px 20px;
+      font-size: 13px; color: var(--text-muted);
+      letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 20px;
+    }
+    .header-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); box-shadow: 0 0 8px var(--success); animation: pulse 2s ease-in-out infinite; }
+
+    .header h1 {
+      font-family: var(--font-display); font-weight: 800;
+      font-size: clamp(28px, 5vw, 48px); letter-spacing: -1px; line-height: 1.1; margin-bottom: 12px;
+      background: linear-gradient(135deg, #fff 0%, #a0a0c0 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .header-sub { color: var(--text-muted); font-size: 16px; max-width: 500px; margin: 0 auto; }
+
+    .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 36px; flex-wrap: wrap; gap: 16px; }
+    .progress-bar-wrap { flex: 1; min-width: 200px; }
+    .progress-label { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; }
+    .progress-track { height: 8px; background: var(--border); border-radius: 100px; overflow: hidden; }
+    .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--success), var(--info)); border-radius: 100px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+
+    .tree { display: flex; flex-direction: column; gap: 16px; }
+
+    .section { border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-card); overflow: hidden; transition: border-color 0.3s; animation: fadeUp 0.5s ease-out both; }
+    .section:hover { border-color: var(--border-active); }
+
+    .section-header { display: flex; align-items: center; gap: 16px; padding: 20px 24px; cursor: pointer; transition: background 0.2s; }
+    .section-header:hover { background: var(--bg-card-hover); }
+
+    .section-num { font-size: 24px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); background: rgba(255,255,255,0.03); flex-shrink: 0; }
+    .section-info { flex: 1; }
+    .section-title { font-family: var(--font-display); font-weight: 600; font-size: 15px; margin-bottom: 3px; }
+    .section-count { font-size: 13px; color: var(--text-muted); }
+
+    .section-progress-mini { width: 56px; height: 56px; position: relative; flex-shrink: 0; }
+    .section-progress-mini svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .section-progress-mini .track { fill: none; stroke: var(--border); stroke-width: 4; }
+    .section-progress-mini .fill { fill: none; stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset 0.6s cubic-bezier(0.4,0,0.2,1); }
+    .section-progress-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-family: var(--font-display); font-weight: 700; font-size: 12px; color: var(--text-muted); }
+
+    .chevron { width: 24px; height: 24px; color: var(--text-dim); transition: transform 0.3s; flex-shrink: 0; }
+    .section.open .chevron { transform: rotate(180deg); }
+
+    .topics { max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1); }
+    .section.open .topics { max-height: 600px; }
+    .topics-inner { padding: 0 24px 20px; display: flex; flex-direction: column; gap: 8px; }
+
+    .topic { display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; border-radius: var(--radius-sm); border: 1px solid transparent; text-decoration: none; color: var(--text); cursor: pointer; transition: all 0.2s; }
+    .topic:hover { background: rgba(255,255,255,0.02); border-color: var(--border); }
+
+    .topic.completed { opacity: 0.6; }
+    .topic.completed .topic-text { text-decoration: line-through; text-decoration-color: var(--text-dim); }
+
+    .checkbox { width: 22px; height: 22px; border: 2px solid var(--border-active); border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; transition: all 0.25s; }
+    .topic.completed .checkbox { border-color: var(--success); background: var(--success); }
+    .checkbox svg { width: 14px; height: 14px; opacity: 0; transform: scale(0.5); transition: all 0.25s; }
+    .topic.completed .checkbox svg { opacity: 1; transform: scale(1); }
+
+    .topic.attempted .checkbox { border-color: var(--warning); }
+
+    .topic-num { font-family: var(--font-mono); font-weight: 600; font-size: 12px; color: var(--text-dim); margin-top: 2px; flex-shrink: 0; min-width: 24px; }
+    .topic-info { flex: 1; }
+    .topic-text { font-size: 14px; line-height: 1.5; }
+    .topic-status { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+    .topic.completed .topic-status { color: var(--success); }
+    .topic.attempted .topic-status { color: var(--warning); }
+
+    /* Section accent strokes */
+    .section[data-section="01"] .section-progress-mini .fill { stroke: var(--c-01); }
+    .section[data-section="02"] .section-progress-mini .fill { stroke: var(--c-02); }
+    .section[data-section="03"] .section-progress-mini .fill { stroke: var(--c-03); }
+    .section[data-section="04"] .section-progress-mini .fill { stroke: var(--c-04); }
+    .section[data-section="05"] .section-progress-mini .fill { stroke: var(--c-05); }
+    .section[data-section="06"] .section-progress-mini .fill { stroke: var(--c-06); }
+
+    .reset-wrap { text-align: center; margin-top: 40px; }
+    .reset-btn { background: transparent; border: 1px solid var(--border); color: var(--text-muted); font-family: var(--font-body); font-size: 13px; padding: 10px 24px; border-radius: 100px; cursor: pointer; transition: all 0.25s; }
+    .reset-btn:hover { border-color: var(--c-01); color: var(--c-01); }
+
+    @media (max-width: 640px) {
+      .controls { flex-direction: column; align-items: stretch; }
+      .section-header { padding: 16px; gap: 12px; }
+      .topics-inner { padding: 0 16px 16px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+      <span class="logo-dot"></span> ЕНТ Информатика
+    </a>
+    <div class="navbar-actions">
+      <div class="lang-toggle">
+        <button class="lang-btn active" data-lang="ru" onclick="setLang('ru')">Рус</button>
+        <button class="lang-btn" data-lang="kz" onclick="setLang('kz')">Қаз</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <div class="header-badge"><span class="dot"></span> ЕНТ 2026</div>
+      <h1 id="mainTitle">Информатика Roadmap</h1>
+      <p class="header-sub" id="mainSub">Подготовка к ЕНТ — 6 разделов, 13 тем</p>
+    </div>
+
+    <div class="controls">
+      <div class="progress-bar-wrap">
+        <div class="progress-label">
+          <span id="progressLabel">Общий прогресс</span>
+          <span id="progressPercent">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tree" id="tree"></div>
+
+    <div class="reset-wrap">
+      <button class="reset-btn" id="resetBtn" onclick="resetProgress()">Сбросить прогресс</button>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -13,7 +13,7 @@ function loadFromStorage(key) {
   try { return JSON.parse(localStorage.getItem(key)); } catch { return null; }
 }
 function saveToStorage(key, val) {
-  try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) { }
 }
 
 let currentLang = 'ru';
@@ -32,7 +32,7 @@ async function init() {
   await loadTopic();
 }
 
-window.setLang = function(lang) {
+window.setLang = function (lang) {
   currentLang = lang;
   saveToStorage(STORAGE_KEYS.lang, lang);
   document.querySelectorAll('.lang-btn').forEach(b =>
@@ -43,11 +43,18 @@ window.setLang = function(lang) {
 
 async function loadTopic() {
   try {
+    // Determine base path — works both at root and in subdirectory (GitHub Pages)
+    const basePath = getBasePath();
+
     const [contentRes, quizRes, sectionsRes] = await Promise.all([
-      fetch(`data/content/topic-${topicId}.json`),
-      fetch(`data/quizzes/quiz-${topicId}.json`),
-      fetch('data/sections.json')
+      fetch(`${basePath}data/content/topic-${topicId}.json`),
+      fetch(`${basePath}data/quizzes/quiz-${topicId}.json`),
+      fetch(`${basePath}data/sections.json`)
     ]);
+
+    if (!contentRes.ok) throw new Error(`Content not found: ${contentRes.status} — ${contentRes.url}`);
+    if (!quizRes.ok) throw new Error(`Quiz not found: ${quizRes.status} — ${quizRes.url}`);
+    if (!sectionsRes.ok) throw new Error(`Sections not found: ${sectionsRes.status} — ${sectionsRes.url}`);
 
     const content = await contentRes.json();
     const quiz = await quizRes.json();
@@ -133,7 +140,7 @@ async function loadTopic() {
       });
     });
 
-  } catch(e) {
+  } catch (e) {
     console.error('Failed to load topic:', e);
     document.getElementById('lessonContent').innerHTML =
       `<div class="lesson-text" style="text-align:center;padding:40px">
@@ -336,6 +343,14 @@ function renderMindmap(canvas, data) {
 
   svg += '</svg>';
   canvas.innerHTML = svg;
+}
+
+// Resolves base path for fetch — handles GitHub Pages subdirectory deployment
+function getBasePath() {
+  // topic.html sits at root, so we derive base from its location
+  const path = window.location.pathname;
+  const lastSlash = path.lastIndexOf('/');
+  return path.substring(0, lastSlash + 1);
 }
 
 document.addEventListener('DOMContentLoaded', init);

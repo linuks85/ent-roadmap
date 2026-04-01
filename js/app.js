@@ -17,7 +17,14 @@ function loadFromStorage(key) {
 }
 
 function saveToStorage(key, val) {
-  try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) { console.warn('Storage error', e); }
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) { console.warn('Storage error', e); }
+}
+
+// Resolves base path for fetch — handles GitHub Pages subdirectory deployment
+function getBasePath() {
+  const path = window.location.pathname;
+  const lastSlash = path.lastIndexOf('/');
+  return path.substring(0, lastSlash + 1);
 }
 
 // ── Init ──
@@ -26,9 +33,11 @@ async function init() {
   progressData = loadFromStorage(STORAGE_KEYS.progress) || {};
 
   try {
-    const res = await fetch('data/sections.json');
+    const basePath = getBasePath();
+    const res = await fetch(`${basePath}data/sections.json`);
+    if (!res.ok) throw new Error(`sections.json not found: ${res.status}`);
     sectionsData = await res.json();
-  } catch(e) {
+  } catch (e) {
     console.error('Failed to load sections:', e);
     return;
   }
@@ -93,19 +102,19 @@ function render() {
         <div class="topics">
           <div class="topics-inner">
             ${sec.topics.map(t => {
-              const tp = progressData[t.id];
-              const passed = tp?.passed;
-              const score = tp?.bestScore;
-              let statusLabel = d.startLesson;
-              let statusClass = '';
-              if (passed) {
-                statusLabel = `${d.testPassed} (${Math.round(score*100)}%)`;
-                statusClass = 'completed';
-              } else if (score !== undefined) {
-                statusLabel = d.retakeTest;
-                statusClass = 'attempted';
-              }
-              return `
+      const tp = progressData[t.id];
+      const passed = tp?.passed;
+      const score = tp?.bestScore;
+      let statusLabel = d.startLesson;
+      let statusClass = '';
+      if (passed) {
+        statusLabel = `${d.testPassed} (${Math.round(score * 100)}%)`;
+        statusClass = 'completed';
+      } else if (score !== undefined) {
+        statusLabel = d.retakeTest;
+        statusClass = 'attempted';
+      }
+      return `
                 <a class="topic ${statusClass}" href="topic.html?id=${t.id}" data-topic="${t.id}">
                   <div class="checkbox">
                     <svg viewBox="0 0 14 14" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -118,18 +127,18 @@ function render() {
                     <div class="topic-status">${statusLabel}</div>
                   </div>
                 </a>`;
-            }).join('')}
+    }).join('')}
           </div>
         </div>
       </div>`;
   }).join('');
 }
 
-window.toggleSection = function(id) {
+window.toggleSection = function (id) {
   document.querySelector(`.section[data-section="${id}"]`).classList.toggle('open');
 };
 
-window.resetProgress = function() {
+window.resetProgress = function () {
   if (confirm(currentLang === 'ru'
     ? 'Вы уверены? Весь прогресс будет сброшен.'
     : 'Сенімдісіз бе? Барлық прогресс тазаланады.')) {
